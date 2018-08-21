@@ -1,48 +1,74 @@
-//https://www.youtube.com/watch?v=qGcbxORzWFk
-//https://www.google.com/search?client=ubuntu&hs=lCV&channel=fs&biw=1405&bih=707&tbm=isch&sa=1&ei=w1d9W6TeBNqR9QO9o5PIAw&q=st_mode+bits&oq=st_mode+bits&gs_l=img.3...214740.216489.0.216695.5.5.0.0.0.0.186.683.0j4.4.0....0...1c.1.64.img..1.1.182...0i8i30k1j0i24k1.0.w9K7SBLnEKs#imgrc=ldZZW1aczCpXOM:
-
-
 #include <stdio.h>
 #include <sys/stat.h>
 #include <time.h>
 #include <sys/types.h>
+#include <string>
+#include <pwd.h>
+#include <grp.h>
 using namespace std;
 
 struct FileAttributes
 {
 	string file_name;
 	int    file_size;
-	char   file_permissions[10];
+	bool   k,m;
+	string owner_user;
+	string owner_group;
+	char   file_permissions[11];
 	string last_modified;
-};
+}File_Attributes;
 
-struct FileAttributes getFileAttributes(string& file_name)
+struct FileAttributes* FileAtt=&File_Attributes;
+
+
+struct FileAttributes* getFileAttributes(char* file_name)      //this function returns the attributes of a file
 {
 	struct stat s;
 	if ( stat(file_name,&s) != 0 )                    //if the file does not exist
-		return 0;
+		return NULL;
 
-	struct FileAttributes FileAtt;	
+	//struct FileAttributes* FileAtt;	
 	
-	FileAtt.file_size=s.st_size;
+	FileAtt->k=false;
+	FileAtt->m=false;
+	int size=s.st_size;
+	if(size/1024!=0)        //this checks if the size is in bytes, kilobytes, or megabytes
+	{
+		size=size/1024;
+		FileAtt->k=true;
+		if(size/1024!=0)
+		{
+			size=size/1024;
+			FileAtt->m=true;
+			FileAtt->k=false;
+		}
+	}
+	FileAtt->file_size=size;
 	
-	(S_ISDIR(fileStat.st_mode)) ? FileAtt.file_permissions[0]='d' : FileAtt.file_permissions[0]='-');    //here the bits of permissions stored in st_mode are changed to corresponding character
-    	(fileStat.st_mode & S_IRUSR) ? FileAtt.file_permissions[1]='r' : FileAtt.file_permissions[1]='-');
-    	(fileStat.st_mode & S_IWUSR) ? FileAtt.file_permissions[2]='w' : FileAtt.file_permissions[2]='-');
-    	(fileStat.st_mode & S_IXUSR) ? FileAtt.file_permissions[3]='x' : FileAtt.file_permissions[3]='-');
-    	(fileStat.st_mode & S_IRGRP) ? FileAtt.file_permissions[4]='r' : FileAtt.file_permissions[4]='-');
-    	(fileStat.st_mode & S_IWGRP) ? FileAtt.file_permissions[5]='w' : FileAtt.file_permissions[5]='-');
-	(fileStat.st_mode & S_IXGRP) ? FileAtt.file_permissions[6]='x' : FileAtt.file_permissions[6]='-');
-	(fileStat.st_mode & S_IROTH) ? FileAtt.file_permissions[7]='r' : FileAtt.file_permissions[7]='-');
-	(fileStat.st_mode & S_IWOTH) ? FileAtt.file_permissions[8]='w' : FileAtt.file_permissions[8]='-');
-	(fileStat.st_mode & S_IXOTH) ? FileAtt.file_permissions[9]='x' : FileAtt.file_permissions[9]='-');
+	struct group *grp;
+	struct passwd *pwd;
 
-	string last_modified = ctime( &s.st_mtime );
+	grp = getgrgid(s.st_gid);              //this function converts groupID to group name
+	FileAtt->owner_user = grp->gr_name;
+
+	pwd = getpwuid(s.st_uid);              //this function converts userID to user name
+	FileAtt->owner_group = pwd->pw_name;
+
+	(S_ISDIR(s.st_mode)) ? FileAtt->file_permissions[0]='d' : FileAtt->file_permissions[0]='-';    //here the bits of permissions stored in st_mode are changed to corresponding character
+    	(s.st_mode & S_IRUSR) ? FileAtt->file_permissions[1]='r' : FileAtt->file_permissions[1]='-';
+    	(s.st_mode & S_IWUSR) ? FileAtt->file_permissions[2]='w' : FileAtt->file_permissions[2]='-';
+    	(s.st_mode & S_IXUSR) ? FileAtt->file_permissions[3]='x' : FileAtt->file_permissions[3]='-';
+    	(s.st_mode & S_IRGRP) ? FileAtt->file_permissions[4]='r' : FileAtt->file_permissions[4]='-';
+    	(s.st_mode & S_IWGRP) ? FileAtt->file_permissions[5]='w' : FileAtt->file_permissions[5]='-';
+	(s.st_mode & S_IXGRP) ? FileAtt->file_permissions[6]='x' : FileAtt->file_permissions[6]='-';
+	(s.st_mode & S_IROTH) ? FileAtt->file_permissions[7]='r' : FileAtt->file_permissions[7]='-';
+	(s.st_mode & S_IWOTH) ? FileAtt->file_permissions[8]='w' : FileAtt->file_permissions[8]='-';
+	(s.st_mode & S_IXOTH) ? FileAtt->file_permissions[9]='x' : FileAtt->file_permissions[9]='-';
+	FileAtt->file_permissions[10]='\0';
+	
+	FileAtt->last_modified = ctime( &s.st_mtime );
+	
 	return FileAtt;
 }
-
-
-
-
 
 
