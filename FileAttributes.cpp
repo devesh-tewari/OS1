@@ -1,41 +1,5 @@
-/*  #include <sys/stat.h>
-    /**
-     * Get the size of a file.
-     * @return The filesize, or 0 if the file does not exist.
-     */
-    size_t getFilesize(const char* filename) {
-        struct stat st;
-        if(stat(filename, &st) != 0) {
-            return 0;
-        }
-        return st.st_size;   
-    }
-
-size_t getFilesize(const std::string& filename) {
-    struct stat st;
-    if(stat(filename.c_str(), &st) != 0) {
-        return 0;
-    }
-    return st.st_size;   
-}
-*/
-
 //https://www.youtube.com/watch?v=qGcbxORzWFk
 //https://www.google.com/search?client=ubuntu&hs=lCV&channel=fs&biw=1405&bih=707&tbm=isch&sa=1&ei=w1d9W6TeBNqR9QO9o5PIAw&q=st_mode+bits&oq=st_mode+bits&gs_l=img.3...214740.216489.0.216695.5.5.0.0.0.0.186.683.0j4.4.0....0...1c.1.64.img..1.1.182...0i8i30k1j0i24k1.0.w9K7SBLnEKs#imgrc=ldZZW1aczCpXOM:
-
-/*
-#include <pwd.h>
-#include <grp.h>
-
-struct group *grp;
-struct passwd *pwd;
-
-grp = getgrgid(gid);
-printf("group: %s\n", grp->gr_name);
-
-pwd = getpwuid(uid);
-printf("username: %s\n", pwd->pw_name);
-*/
 
 
 #include <stdio.h>
