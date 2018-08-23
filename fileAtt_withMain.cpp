@@ -1,25 +1,14 @@
 #include <stdio.h>
+#include <dirent.h>
 #include <sys/stat.h>
 #include <time.h>
 #include <sys/types.h>
-#include <string>
+#include <string.h>
+#include <iostream>
+#include <iomanip>
 #include <pwd.h>
 #include <grp.h>
 using namespace std;
-
-struct FileAttributes
-{
-	string file_name;
-	int    file_size;
-	bool   k,m;
-	string owner_user;
-	string owner_group;
-	char   file_permissions[11];
-	string last_modified;
-}File_Attributes;
-
-struct FileAttributes* FileAtt=&File_Attributes;
-
 
 struct FileAttributes
 {
@@ -85,3 +74,49 @@ struct FileAttributes* getFileAttributes(char* file_name)      //this function r
 }
 
 
+
+int main()
+{
+	//char dirname[30];
+	DIR* p;
+	struct dirent *d;
+	//printf("Enter directory name\n");
+	//scanf("%s",dirname);
+	p=opendir(".");
+	if(p==NULL)
+	{
+		perror("Cannot find directory");
+		return 0;
+	}
+	//struct FileAttributes* fAttr;
+	int dir_size=0;
+	cout.precision(1);
+	cout.setf(ios::fixed);
+	while(d=readdir(p))
+	{
+		FileAtt=getFileAttributes(d->d_name);
+		cout<<setw(20)<<d->d_name;
+		if(FileAtt->k==true)
+		{
+			cout<<setw(7)<<FileAtt->file_size<<"K";
+			dir_size+=FileAtt->file_size * 1024;
+		}
+		else if(FileAtt->m==true)
+		{
+			cout<<setw(7)<<FileAtt->file_size<<"M";
+			dir_size+=FileAtt->file_size * 1024 * 1024;
+		}
+		else
+		{
+			cout<<setw(7)<<(int)FileAtt->file_size<<"B";
+			dir_size+=FileAtt->file_size;
+		}
+		cout<<setw(10)<<FileAtt->owner_user;
+		cout<<setw(10)<<FileAtt->owner_group;
+		cout<<setw(13)<<FileAtt->file_permissions;
+		cout<<setw(30)<<FileAtt->last_modified;
+		//cout<<"\n";
+	}
+	cout<<"Directory size: "<<dir_size<<" B\n";
+	return 0;
+}
