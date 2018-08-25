@@ -37,7 +37,18 @@ pwd = getpwuid(uid);
 printf("username: %s\n", pwd->pw_name);
 */
 
+/*
+int main (int argc, char **argv)
+{
+    struct winsize w;
+    ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
 
+    printf ("lines %d\n", w.ws_row);
+    printf ("columns %d\n", w.ws_col);
+    return 0;  // make sure your main returns int
+}*/
+
+#include <sys/ioctl.h>
 #include <stdio.h>
 #include <sys/stat.h>
 #include <time.h>
@@ -70,13 +81,23 @@ void insert( struct FileAttributes FA )           //inserts the file attributes 
 }
 		
 
-int display(struct FileAttributes* FileAtt)
+int display(struct FileAttributes* FileAtt)   // make dir size print in 2nd line
 {
 	int dir_size;
 	cout.precision(1);
 	cout.setf(ios::fixed);
-	while(FileAtt!=NULL)
+	struct winsize w;
+	ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
+	int rows=w.ws_row-3;
+	int columns=w.ws_col;
+	int cur=0;
+	//cout<<rows<<" ";
+	while(FileAtt!=NULL && cur<rows)
 	{
+		if(cur==0)
+		{
+			cout << "\033[7;36m";
+		}
 		cout<<setw(18)<<FileAtt->file_name;
 		if(FileAtt->k==true)
 		{
@@ -98,6 +119,8 @@ int display(struct FileAttributes* FileAtt)
 		cout<<setw(12)<<FileAtt->file_permissions;
 		cout<<setw(27)<<FileAtt->last_modified;
 		FileAtt=FileAtt->next_file;
+		cout << "\033[0m";
+		cur++;
 	}
 	return dir_size;
 }
@@ -111,9 +134,11 @@ struct FileAttributes getFileAttributes(char* file_name)      //this function re
 	}*/
 	//printf("%s\n",cwd);
 	//strcpy(f,str.c_str());
+	//printf("\n\n\n\n\n\n\n\n%s",file_name);
 	if ( stat(file_name,&s) != 0 )                    //if the file does not exist
-	{
+	{	
 		perror("Cannot open this file!");
+		printf("\n\n\n\n\n\n\n\n\n%s",file_name);
 	}
 	struct FileAttributes File_Attributes;
 	File_Attributes.file_name=file_name;

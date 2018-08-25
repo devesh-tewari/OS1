@@ -6,7 +6,7 @@
 #include <unistd.h>
 
 #include "FileAtt.h"
-#include "goto.h"
+#include "navigate.h"
 
 using namespace std;
 struct FileAttributes* first_file=NULL;
@@ -86,7 +86,7 @@ int display(struct FileAttributes* FileAtt)
 	while(d=readdir(p))
 	{
 		File_Attributes=getFileAttributes(d->d_name);
-		insert( File_Attributes );                          //
+		insert( File_Attributes );                          
 		num_files++;
 	}
 	dir_size=display(first_file);
@@ -96,13 +96,18 @@ int display(struct FileAttributes* FileAtt)
 
 int main()
 {
-	char dir[30]=".";
-	int files=open_dir(dir);
-	char cwd[PATH_MAX];
-	if (getcwd(cwd, sizeof(cwd)) == NULL) 
+	char dir[2]=".";
+	char stack[PATH_MAX];   //used to store browse history
+	if (getcwd(stack, sizeof(stack)) == NULL)    //get current working directory
 	{
     		perror("getcwd() error");
-	} 
-	navigate();
+	}
+	printf("\033[2J");  //clear screen
+	printf("\033[H"); // move cursor to top
+	printf("%s\n",stack);
+	int files=open_dir(dir); 
+	navigate(stack, files);
+	printf("\033[2J");     //clear screen
+	printf("\033[H"); // move cursor to top
 	return 0;
 }
