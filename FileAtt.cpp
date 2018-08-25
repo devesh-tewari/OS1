@@ -58,6 +58,7 @@ int main (int argc, char **argv)
 #include <grp.h>
 #include <unistd.h>
 #include "FileAtt.h"
+#include "display.h"
 using namespace std;
 
 void insert( struct FileAttributes FA )           //inserts the file attributes in a doubly linked list data structure
@@ -81,7 +82,7 @@ void insert( struct FileAttributes FA )           //inserts the file attributes 
 }
 		
 
-int display(struct FileAttributes* FileAtt)   // make dir size print in 2nd line
+/*int display(struct FileAttributes* FileAtt)   // make dir size print in 2nd line
 {
 	int dir_size;
 	cout.precision(1);
@@ -123,7 +124,7 @@ int display(struct FileAttributes* FileAtt)   // make dir size print in 2nd line
 		cur++;
 	}
 	return dir_size;
-}
+}*/
 
 struct FileAttributes getFileAttributes(char* file_name)      //this function returns the attributes of a file
 {

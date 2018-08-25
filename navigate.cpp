@@ -1,5 +1,6 @@
 #include<stdio.h>
 #include<sys/ioctl.h>
+#include<sys/stat.h>
 #include<stdlib.h>
 #include<unistd.h>
 #include<termios.h>
@@ -7,10 +8,11 @@
 
 #define max_history 100
 #include "FileAtt.h"
+#include "display.h"
 
 int open_dir(char*);  //this function navigates through the input directory and stores all its files/subdirectories, andn returns an integer specifying the number of files in the input directory
 
-int file_no_at_term_top=0;
+/*int file_no_at_term_top=0;
 int file_no_at_term_bottom;
 void refresh(int cur)
 {
@@ -68,6 +70,12 @@ void refresh(int cur)
 		FileAtt=FileAtt->next_file;
 		i++;
 	}
+}*/
+
+bool is_file(const char* path) {
+    struct stat buf;
+    stat(path, &buf);
+    return S_ISREG(buf.st_mode);
 }
 
 void navigate(char* stack, int files)   //cwd is an array which stores browsing history, files are the no of files called by main
@@ -84,11 +92,13 @@ void navigate(char* stack, int files)   //cwd is an array which stores browsing 
     tcsetattr(0, TCSANOW, &newtio);   //this sets the changed attributes
     struct FileAttributes* curr_file=first_file;
     char slash[2];
+    int pid;
     strcpy(slash,"/");
     char cd[PATH_MAX];
     int i=0;     //current stack position
     int top=0;   //stack top of history
     int curr_file_no=1;
+    bool first_down=true;
     fflush(stdout);
     while (1)   //keep reading characters in insert mode till we read ':'
     {
@@ -102,6 +112,16 @@ void navigate(char* stack, int files)   //cwd is an array which stores browsing 
 			   strcpy(path,cwd[i]);
 			   strcat(path,slash);
 			   strcat(path,curr_file->file_name.c_str());
+			   if(is_file(path))
+			   {
+				pid = fork();
+				if (pid == 0) 
+				{
+				  execl("/usr/bin/xdg-open", "xdg-open", path, (char *)0);
+				  exit(1);
+				}
+				break;
+			   }
 			   chdir(path);   //go to the directory where enter is pressed
 			   printf("\033[2J");     //clear screen
 			   printf("\033[H"); // move cursor to top
@@ -112,6 +132,7 @@ void navigate(char* stack, int files)   //cwd is an array which stores browsing 
 			   files=open_dir(path);
 			   curr_file=first_file;
 			   curr_file_no=1;
+			   first_down=true;
 			   break;
 
 /*up*/		case 'A':  if(curr_file_no>1) //this condition ensures that curr_file does not point something invalid
@@ -123,7 +144,7 @@ void navigate(char* stack, int files)   //cwd is an array which stores browsing 
 			   	printf("\033[H"); // move cursor to top
 				getcwd(cd, sizeof(cd));
 			   	printf("%s\n",cd);
-				refresh(curr_file_no-1);
+				refresh(curr_file_no-1 , files, false);
 				//printf("up ");
 			   }
 			   break;
@@ -137,7 +158,11 @@ void navigate(char* stack, int files)   //cwd is an array which stores browsing 
 			   	printf("\033[H"); // move cursor to top
 				getcwd(cd, sizeof(cd));
 			   	printf("%s\n",cd);
-				refresh(curr_file_no-1);
+				if(first_down)
+					refresh(curr_file_no-1 , files, true);
+				else
+					refresh(curr_file_no-1 , files, false);
+				first_down=false;
 				//printf("down ");
 			   }
 			   break;
@@ -153,6 +178,7 @@ void navigate(char* stack, int files)   //cwd is an array which stores browsing 
 				files=open_dir(path);
 			   	curr_file=first_file;
 			   	curr_file_no=1;
+				first_down=true;
 			   }
 			   break;
 
@@ -167,6 +193,7 @@ void navigate(char* stack, int files)   //cwd is an array which stores browsing 
 				files=open_dir(path);
 			   	curr_file=first_file;
 			   	curr_file_no=1;
+				first_down=true;
 			   }
 			   break;
 
@@ -186,6 +213,7 @@ void navigate(char* stack, int files)   //cwd is an array which stores browsing 
 			   files=open_dir(path);
 			   curr_file=first_file;
 			   curr_file_no=1;
+			   first_down=true;
 			   break;
 
 /*home*/	case 'h':  if(!strcmp(cwd[i],cwd[0]))
@@ -202,6 +230,7 @@ void navigate(char* stack, int files)   //cwd is an array which stores browsing 
 			   files=open_dir(path);
 			   curr_file=first_file;
 			   curr_file_no=1;
+			   first_down=true;
 			   break;
     	}
 	fflush(stdout);
