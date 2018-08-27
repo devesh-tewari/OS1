@@ -1,3 +1,6 @@
+#ifndef FILEATT_H
+#define FILEATT_H
+
 #include <string.h>
 #include <stdio.h>
 #include <dirent.h>
@@ -28,4 +31,5 @@ extern struct FileAttributes* last_file;
 void insert( struct FileAttributes);  
 int display(struct FileAttributes*);
 
+#endif
 
