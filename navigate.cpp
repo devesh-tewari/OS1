@@ -6,7 +6,7 @@
 #include<termios.h>
 #include<string.h>
 
-#define max_history 100
+#define max_history 150
 #include "FileAtt.h"
 #include "display.h"
 
@@ -22,7 +22,7 @@ bool is_file(const char* path) {
 void navigate(char* stack, int files)   //cwd is an array which stores browsing history, files are the no of files called by main
 {
     char c;
-    char cwd[max_history][PATH_MAX];   //this stores browing history in a stack structure
+    char cwd[max_history][PATH_MAX];   //this stores browing history in a stack like structure
     char path[PATH_MAX];
     strcpy(cwd[0],stack);
     static struct termios oldtio, newtio;
@@ -52,13 +52,16 @@ void navigate(char* stack, int files)   //cwd is an array which stores browsing 
 			   strcat(path,curr_file->file_name.c_str());
 			   if(is_file(path))   //if it's a file, open it in other process
 			   {
-				/*pid = fork();
+				pid = fork();
 				if (pid == 0) 
-				{
+				/*{
 				  execl("/usr/bin/xdg-open", "xdg-open", path, (char *)0);
 				  exit(1);
 				}*/
-				execlp("/usr/bin/gedit","gedit",curr_file->file_name,NULL);
+				{
+					execlp("/usr/bin/gedit","gedit",curr_file->file_name,NULL);
+					exit(1);
+				}
 				break;
 			   }
 			   chdir(path);   //go to the directory where enter is pressed

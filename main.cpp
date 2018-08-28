@@ -22,7 +22,7 @@ int main()
 	}
 	printf("\033[2J");  //clear screen
 	printf("\033[H"); // move cursor to top
-	printf("\033[1;36m%s\033[0m\n",stack);
+	printf("\033[1;36m%s\033[0m\n",stack);  //print current directory at first line
 	int files=open_dir(dir); 
 	navigate(stack, files);
 	printf("\033[2J");     //clear screen
