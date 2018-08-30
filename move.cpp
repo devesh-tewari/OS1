@@ -86,7 +86,7 @@ int copy(char* src, char* dst, bool first_call)
 			char file_inside[200];
 			strcpy(file_inside,src);
 			strcat(file_inside,slash);
-			strcat(file_inside,d->d_name);  //file in the destination directory will have its path as directoryPATH/filename
+			strcat(file_inside,d->d_name);  //file in the directory will have its path as directoryPATH/filename
 			//printf("\n%s\n",file_inside);
 			char temp_dst[200];
 			strcpy(temp_dst,new_dir);
@@ -109,30 +109,21 @@ int copy(char* src, char* dst, bool first_call)
 
     if( !is_dir(src) && !is_dir(dst) )
     {
-	ifstream source ( src , ios::binary );
-	ofstream dest ( dst , ios::binary );
+	 struct stat s;
+	 stat(src,&s);
+	 int original_uid=s.st_uid;    //store original user of source
+	 int original_gid=s.st_gid;    //store original group of source
+	 int original_permissions=s.st_mode;   //store original permissions
 
-	if(!source) 
-	{
-		cout<<"Can't open source file(s)\n";
+	 if (rename(src, dst) != 0)   //rename system call renames(moves) files
+	 {
+		printf("Error moving file\nsrc: %s\ndst %s\n",src,dst);
 		return 0;
-	}
-	if(!dest)
-	{ 
-		cout<< "\nCan't open destination file: "<<dst<<" src:\n"<<src;
-		return 0;
-	}
+	 }
 
-	dest << source.rdbuf();
-    
-	source.close();
-	dest.close();
+	 chown ( dst , original_uid , original_gid );   //update owner and group to original file
+	 chmod ( dst , original_permissions );   //update the permissions like that of original file
     }
-
-    struct stat fst;
-    stat(src,&fst);
-    chown(dst,fst.st_uid,fst.st_gid);   //update owner and group to original file
-    chmod(dst,fst.st_mode);   //update the permissions like that of original file
     return 1;
 }
 
