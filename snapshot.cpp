@@ -6,7 +6,6 @@
 #include <dirent.h>
 #include <vector>
 #include <fstream>
-#include<iostream>
 
 using namespace std;
 
@@ -41,7 +40,7 @@ int snapshot(char* folder, char* dmp)
 	return 0;
     }
     vector<string> dir_list;   //list of directories in the current folder
-    char filepath[100];
+    char filepath[400];
     
     while(d=readdir(p))    //keep reading files of directory until none are left
     {
@@ -54,7 +53,6 @@ int snapshot(char* folder, char* dmp)
 		{
 			string temp(filepath);
 			dir_list.push_back(temp);
-			// \033[1;34m , [0m
 		}
 		dumpfile<<endl<<(string)d->d_name;
 	}
@@ -66,7 +64,6 @@ int snapshot(char* folder, char* dmp)
     {
 	dumpfile<<endl<<endl;
 	snapshot (  &dir_list[i][0] , dmp );  //recursively print the directories inside the current folder
-	dumpfile<<endl<<endl;
     }
 
     dumpfile.close();
@@ -78,12 +75,12 @@ int main(int argc, char* argv[])
 {
     if(argc!=3)
     {
-	cout<<"Insuffecient arguments\n";
+	//cout<<"Insuffecient arguments\n";
 	return 0;
     }
     if( !is_dir(argv[1]) )
     {
-	cout<<"Folder not found";
+	//cout<<"Folder not found";
 	return 0;
     }
     ofstream dumpfile;

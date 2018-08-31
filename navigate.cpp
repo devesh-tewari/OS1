@@ -3,7 +3,6 @@
 #include<sys/stat.h>
 #include<stdlib.h>
 #include<unistd.h>
-#include<termios.h>
 #include<string.h>
 
 #define max_history 150
@@ -19,25 +18,28 @@ bool is_file(const char* path) {
     return S_ISREG(buf.st_mode);
 }
 
-void navigate(char* stack, int files)   //cwd is an array which stores browsing history, files are the no of files called by main
+char* navigate(char* stack, char* home)   //cwd is an array which stores browsing history, files are the no of files called by main
+//function returns true if ':' is pressed (to insert command mode)
 {
     char c;
-    char cwd[max_history][PATH_MAX];   //this stores browing history in a stack like structure
+    static char cwd[max_history][PATH_MAX];   //this stores browing history in a stack like structure
+    static int i=0;     //current stack position
+    static int top=0;   //stack top of history
+
     char path[PATH_MAX];
-    strcpy(cwd[0],stack);
-    static struct termios oldtio, newtio;
-    tcgetattr(0, &oldtio);       //taking terminal attributes to the structure 'oldtio'
-    newtio = oldtio;
-    newtio.c_lflag &= ~ICANON;   //this turns on non-canonical input
-    newtio.c_lflag &= ~ECHO;     //so that the keystrokes are not displayed
-    tcsetattr(0, TCSANOW, &newtio);   //this sets the changed attributes
+    strcpy(cwd[0],home);
+
+    printf("\033[2J");     //clear screen
+    printf("\033[H");      // move cursor to top
+    printf("\033[1;36m%s\033[0m\n",stack);  //print current directory at first line
+
+    int files=open_dir(cwd[i]);
+
     struct FileAttributes* curr_file=first_file;
     char slash[2];
     int pid;
     strcpy(slash,"/");
-    char cd[PATH_MAX];
-    int i=0;     //current stack position
-    int top=0;   //stack top of history
+    static char cd[PATH_MAX];
     int curr_file_no=1;
     bool first_down=true;
     fflush(stdout);
@@ -46,7 +48,7 @@ void navigate(char* stack, int files)   //cwd is an array which stores browsing 
         read(0, &c, 1);
 	switch(c)
 	{
-/*enter*/	case '\n':   //next few lines appends the directory name to the current directory path
+/*enter*/	case '\n': //next few lines appends the directory name to the current directory path
 			   strcpy(path,cwd[i]);
 			   strcat(path,slash);
 			   strcat(path,curr_file->file_name.c_str());
@@ -167,11 +169,16 @@ void navigate(char* stack, int files)   //cwd is an array which stores browsing 
 			   break;
     	}
 	fflush(stdout);
-        if (c == ':') { break; }
+        if (c == ':') 
+	{ 
+		printf("%c[2K", 27);  //clear last line
+		cout<<"\033[200D";
+		break; 
+	}
     }
-    printf("\n"); 
-    tcsetattr(0, TCSANOW, &oldtio);         //go back to canonical mode
-
+    //printf("\n");
+    getcwd(cd, sizeof(cd));    //get current working directory
+    return cd;
 }
 
 

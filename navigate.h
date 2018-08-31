@@ -2,6 +2,6 @@
 #define NAVIGATE_H
 
 int open_dir(char*);
-void navigate(char*,int);
+char* navigate(char*,char*);
 
 #endif

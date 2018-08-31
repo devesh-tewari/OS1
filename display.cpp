@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <iostream>
 #include <iomanip>
+#include <math.h>
 #include "display.h"
 #include "FileAtt.h"
 using namespace std;
@@ -18,8 +19,13 @@ int display(struct FileAttributes* FileAtt)
 	struct winsize w;
 	ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
 	int rows=w.ws_row-2;  // -2 because 1st line is occupied & last line is for status
+	int columns=w.ws_col;
 	int cur=0;
+	//cout<<columns<<" ";
 	//cout<<rows<<" ";
+	int lines_per_record = ceil( 80.0/(float)columns ) ; //handle horizontal overflow,width of 1 record is 80
+	rows= rows / lines_per_record;
+	//cout<<lines_per_record;
 	while(FileAtt!=NULL && cur<rows)
 	{
 		if(cur==0)
@@ -57,6 +63,7 @@ int display(struct FileAttributes* FileAtt)
 		cout << "\033[0m";
 		cur++;
 	}
+	rows=w.ws_row;
 	while(cur<rows)  //move to screen bottom to print status bar
 	{
 		cout << "\033[B";
@@ -80,6 +87,9 @@ void refresh(int cur,int no_of_files,bool first_down)      //this function refre
 	struct winsize w;
 	ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);  //function to get terminal size
 	int rows=w.ws_row;
+	int columns=w.ws_col;
+	int lines_per_record = ceil( 80.0/(float)columns );
+	rows=rows/ lines_per_record;
 	file_no_at_term_bottom= file_no_at_term_top + rows-2;   // -2 because 1st line is occupied & last line is for status
 	int i=0,j=0;
 	struct FileAttributes* FileAtt=first_file;
@@ -134,10 +144,11 @@ void refresh(int cur,int no_of_files,bool first_down)      //this function refre
 		FileAtt=FileAtt->next_file;
 		i++;
 	}
-	while(cur<rows)  //move to screen bottom to print status bar
+	rows=w.ws_row;
+	while(i<rows)  //move to screen bottom to print status bar
 	{
 		cout << "\033[B";
-		cur++;
+		i++;
 	}
 	cout<<"\033[21;34;24mTotal :"<<dir_size<<"B\t\t\tNormal Mode\033[0m";   //status bar
 }
