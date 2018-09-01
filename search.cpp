@@ -97,53 +97,72 @@ void display(vector<string> matches, int file_selected , char* searched_file)
 	cout<<"\033[0m";
 	i++;
     }
-    fflush(stdout);
-    while (1)   //keep reading characters in insert mode till we read ':'
+    while (1)   //keep reading characters in insert mode
     {
-	//disable echo
-        read(0, &c, 1);
-	if(c=='A' && file_selected>0)
+	read( 0 , &c , 1 );
+	if(c=='A')
 	{
-		file_selected--;
-		refresh( matches , file_selected , searched_file );
+		if(file_selected>0)
+		{
+			file_selected--;
+			refresh( matches , file_selected , searched_file );
+		}
 	}
-	else if(c=='B' && file_selected<size-1)
-	{
-		file_selected++;
-		refresh( matches , file_selected , searched_file );
+	else if(c=='B')
+	{cout<<"here";
+		if(file_selected<size-1)
+		{
+			file_selected++;
+			refresh( matches , file_selected , searched_file );
+		}
 	}
 	else if(c=='\n')
 	{
-		/*pid = fork();
+		int pid = fork();
 		if (pid == 0) 
-		{
-			execl("/usr/bin/xdg-open", "xdg-open", path, (char *)0);
+		{	
+			char* temp=new char[400];
+			strcpy(temp, &matches[file_selected][0] );
+			strcat(temp,slash);
+			strcat(temp, searched_file);
+			execl("/usr/bin/xdg-open" , "xdg-open" , temp , (char *)0);
 			exit(1);
-		}*/
+		}
 	}
-	//else if(c=='\033')
-	//	return ;
-	fflush(stdout);
+	else if(c==127 || c==8)
+		return ;
     }
 }
 int main(int argc, char* argv[]) 
 {
-    if(argc!=2)
+    static struct termios oldtio, newtio;
+        tcgetattr(0, &oldtio);       //taking terminal attributes to the structure 'oldtio'
+        newtio = oldtio;
+        newtio.c_lflag &= ~ICANON;   //this turns on non-canonical input
+        newtio.c_lflag &= ~ECHO;     //so that the keystrokes are not displayed
+        tcsetattr(0, TCSANOW, &newtio);   //this sets the changed attributes
+
+
+
+    if(argc!=3)
     {
 	cout<<"Insuffecient arguments\n";
 	return 0;
     }
 
-    vector<string> v ( search(".",argv[1]) );
+    vector<string> v ( search(argv[2],argv[1]) );
     int size=v.size();
     if(size==0)
     {
-	cout<<"No Matches Found!";
+	cout<<" No Matches Found!";
 	return 0;
     }
     //sort(v.begin(),v.end());
 
     display(v,0,argv[1]);
+
+
+	tcsetattr(0, TCSANOW, &oldtio);         //go back to canonical mode
 
     return 0;
 }

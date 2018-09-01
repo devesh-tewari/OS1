@@ -1,6 +1,6 @@
 #include <string>
 #include <cstring>
-
+#include <iostream>
 #include <sys/stat.h>
 
 #include <dirent.h>
@@ -28,16 +28,20 @@ bool is_dir(const char* path)  //returns true if input is a directory
    return isDir;
 }
 
-char slash[2]="/";
+char slash[]="/";
 
-int rename(char* filename, char* new_name)
+int rename(char* filename, char* new_name , char* cwd)
 {
+    char* newNAME=new char[400];
+    strcpy(newNAME,cwd);
+    strcat(newNAME,slash);
+    strcat(newNAME,new_name);
     DIR* p;
     struct dirent *d;
-    p=opendir(".");        //opendir opens it's input directory and returns a directory pointer
+    p=opendir(cwd);        //opendir opens it's input directory and returns a directory pointer
     if(p==NULL)
     {
-	perror("Cannot find\n");
+	perror("Cannot find");
 	return 0;
     }
     
@@ -46,7 +50,16 @@ int rename(char* filename, char* new_name)
 	if(  ( strcmp(d->d_name,".")!=0 )  &&  ( strcmp(d->d_name,"..")!=0 )  )
 	{
 		if( strcmp(filename,d->d_name) == 0 )
-			rename(filename, new_name);
+		{
+			char* temp=new char[400];
+
+			strcpy(temp,cwd);
+			strcat(temp,slash);
+			strcat(temp,filename);
+			strcpy(filename,temp);
+
+			rename(filename, newNAME);
+		}
 	}
     }
     return 1;
@@ -55,20 +68,17 @@ int rename(char* filename, char* new_name)
 
 int main(int argc, char* argv[]) 
 {
-    if(argc!=3)
+    if(argc!=4)
     {
-	//cout<<"Insuffecient arguments\n";
+	cout<<"Insuffecient arguments\n";
 	return 0;
     }
-    if( is_dir(argv[1]) )
+    /*if( !is_file(argv[1]) )
     {
-	//cout<<"File not found";
+	cout<<"File not found";
 	return 0;
-    }
-
-    rename(argv[1],argv[2]);
-    
-    //argv[2]
+    }*/
+    rename(argv[1],argv[2],argv[3]);
     
     return 0;
 }

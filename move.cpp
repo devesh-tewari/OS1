@@ -46,14 +46,15 @@ char* get_dir_name_from_path(char* path)  //this function returns the last folde
 }
 
 char slash[2]="/";
-int copy(char* src, char* dst, bool first_call)
+int move(char* src, char* dst, bool first_call)
 {
-    char new_dir[200];
-    if(is_dir(src))  //if destination is a directory, recursively call the copy function
+    int len;
+    char new_dir[PATH_MAX];
+    if(is_dir(src))  //if destination is a directory, recursively call the move function
     {
 	//cout<<src<<" "<<dst;
 	int status;
-	char* dir_name=new char[200];  //destination directory name which has to be created
+	char* dir_name=new char[PATH_MAX];  //destination directory name which has to be created
 	strcpy( dir_name , src );
 	dir_name = get_dir_name_from_path( dir_name ); //last folder of source path is now stored in dir_name
 	//printf("\ndir_name: %s\n",dir_name);
@@ -83,25 +84,26 @@ int copy(char* src, char* dst, bool first_call)
 		if(  ( strcmp(d->d_name,".")!=0 )  &&  ( strcmp(d->d_name,"..")!=0 )  )
 		{
 			//printf("\n%s\n",d->d_name);
-			char file_inside[200];
+			char file_inside[PATH_MAX];
 			strcpy(file_inside,src);
 			strcat(file_inside,slash);
 			strcat(file_inside,d->d_name);  //file in the directory will have its path as directoryPATH/filename
 			//printf("\n%s\n",file_inside);
-			char temp_dst[200];
+			char temp_dst[PATH_MAX];
 			strcpy(temp_dst,new_dir);
 			strcat(temp_dst,slash);
 			strcat(temp_dst,d->d_name);  //same with destination's new file on new directory new_dir
 			//printf("%s\n",temp_dst);
-			copy ( file_inside , temp_dst , false );   //recursive call to copy
+			move ( file_inside , temp_dst , false );   //recursive call to move
 		}
 	}
     }
 
     else if(is_dir(dst))  //if source is a file and destination is a directory
     {
-	char* file_name=new char[200];  //source file name
+	char* file_name=new char[PATH_MAX];  //source file name
 	strcpy( file_name , src );
+	len=strlen(dst);
 	file_name = get_dir_name_from_path( file_name );
 	strcat(dst,slash);
 	strcat(dst,file_name);
@@ -117,13 +119,14 @@ int copy(char* src, char* dst, bool first_call)
 
 	 if (rename(src, dst) != 0)   //rename system call renames(moves) files
 	 {
-		printf("Error moving file\nsrc: %s\ndst %s\n",src,dst);
+		printf("Error!");
 		return 0;
 	 }
 
 	 chown ( dst , original_uid , original_gid );   //update owner and group to original file
 	 chmod ( dst , original_permissions );   //update the permissions like that of original file
     }
+    //dst[len]='\0';
     return 1;
 }
 
@@ -139,7 +142,7 @@ int main(int argc, char* argv[])
     {
 	if(!is_file(argv[i]) && !is_dir(argv[i]))
 	{
-		cout<<argv[i]<<": source does not exist!\n";
+		cout<<"Source(s) does not exist";
 		return 0;
 	}
 	i++;
@@ -148,19 +151,21 @@ int main(int argc, char* argv[])
     {
 	if(argc==3)
 		cout<<argv[argc-1]<<" already exists. Over-write? (y/n): ";
-	/*else
-	{
-		cout<<"Destination file does not exist!\n";
-		return 0;
-	}*/
 	char c;
         cin>>c;
         if ( c== 'n' || c=='N' )
     		return 0;
     }
     
+    char dest[PATH_MAX];
+
     for(i=1;i<argc-1;i++)
-	copy( argv[i] , argv[argc-1], true );
+    {
+	strcpy(dest,argv[argc-1]);
+	cout<<argv[i]<<" "<<argv[argc-1]<<endl;
+	move( argv[i] , dest , true );
+	strcpy(dest,argv[argc-1]);
+    }
     
     return 0;
 }

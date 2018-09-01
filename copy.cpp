@@ -48,12 +48,13 @@ char* get_dir_name_from_path(char* path)  //this function returns the last folde
 char slash[2]="/";
 int copy(char* src, char* dst, bool first_call)
 {
-    char new_dir[200];
+    char new_dir[PATH_MAX];
+    int len;
+    
     if(is_dir(src))  //if destination is a directory, recursively call the copy function
     {
-	//cout<<src<<" "<<dst;
 	int status;
-	char* dir_name=new char[200];  //destination directory name which has to be created
+	char* dir_name=new char[PATH_MAX];  //destination directory name which has to be created
 	strcpy( dir_name , src );
 	dir_name = get_dir_name_from_path( dir_name ); //last folder of source path is now stored in dir_name
 	//printf("\ndir_name: %s\n",dir_name);
@@ -66,14 +67,14 @@ int copy(char* src, char* dst, bool first_call)
 	//printf("\nnew dir:%s\n",new_dir);
 	status = mkdir( new_dir , S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH );  //make new directory new_dir(like the one in source)
 	if(status==-1)
-		cout<<"Unable to create directory";
+		perror("Unable to create directory");
 	//printf("\ndes_dir: %s\n",dst);
 	DIR* p;
 	struct dirent *d;
 	p=opendir(src);        //opendir opens it's input directory and returns a directory pointer
 	if(p==NULL)
 	{
-		perror("Cannot find directory\n");
+		perror("Cannot find directory");
 		return 0;
 	}
 	while(d=readdir(p))    //keep reading files of directory until none are left
@@ -100,9 +101,10 @@ int copy(char* src, char* dst, bool first_call)
 
     else if(is_dir(dst))  //if source is a file and destination is a directory
     {
-	char* file_name=new char[200];  //source file name
+	char* file_name=new char[PATH_MAX];  //source file name
 	strcpy( file_name , src );
 	file_name = get_dir_name_from_path( file_name );
+	len = strlen(dst);
 	strcat(dst,slash);
 	strcat(dst,file_name);
     }
@@ -112,27 +114,22 @@ int copy(char* src, char* dst, bool first_call)
 	ifstream source ( src , ios::binary );
 	ofstream dest ( dst , ios::binary );
 
-	if(!source) 
-	{
-		cout<<"Can't open source file(s)\n";
-		return 0;
-	}
-	if(!dest)
-	{ 
-		cout<< "\nCan't open destination file: "<<dst<<" src:\n"<<src;
-		return 0;
-	}
-
 	dest << source.rdbuf();
     
 	source.close();
 	dest.close();
     }
+    
 
     struct stat fst;
     stat(src,&fst);
     chown(dst,fst.st_uid,fst.st_gid);   //update owner and group to original file
     chmod(dst,fst.st_mode);   //update the permissions like that of original file
+
+    //if(flag)
+    //	strcpy(dst,original_dst);
+    dst[len]='\0';
+
     return 1;
 }
 
@@ -157,19 +154,22 @@ int main(int argc, char* argv[])
     {
 	if(argc==3)
 		cout<<argv[argc-1]<<" already exists. Over-write? (y/n): ";
-	/*else
-	{
-		cout<<"Destination file does not exist!\n";
-		return 0;
-	}*/
 	char c;
         cin>>c;
         if ( c== 'n' || c=='N' )
     		return 0;
     }
+
+    char dest[PATH_MAX];
     
     for(i=1;i<argc-1;i++)
-	copy( argv[i] , argv[argc-1], true );
+    {
+	strcpy(dest,argv[argc-1]);
+	//cout<<argv[i]<<" "<<dest<<endl;
+	copy( argv[i] , dest, true );
+	strcpy(dest,argv[argc-1]);
+	//cout<<argv[i]<<" "<<argv[argc-1]<<endl;
+    }
     
     return 0;
 }

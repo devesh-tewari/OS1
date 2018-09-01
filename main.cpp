@@ -37,7 +37,7 @@ int main()
 	getcwd(H, sizeof(H));    //get current working directory
 
 	cur_dir = navigate( cur_dir , H );  //navigate function handles file explorer input(keystrokes) and returns true when ':' is pressed
-	cout<<cur_dir;
+	//cout<<cur_dir;
 	fflush(stdout);
 	while(1)
 	{	
@@ -49,11 +49,13 @@ int main()
 				    pos=0;
 				    break;
 
-			case '\n':  //execute_command( command );
+			case '\n':  if(command!=NULL)
+				    	execute_command( command , H , cur_dir );
 				    pos=0;
 				    break;
 
-			//case '\b'
+			case 'A' :  break;
+			case 'B' :  break;
 
 			default  :  command[pos]=c;
 				    pos++;
