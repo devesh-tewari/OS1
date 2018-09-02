@@ -1,0 +1,1 @@
+---This_Stores_Path_of_Files_from_where_they_were_deleted---- ---FORMAT:<file_name><space><path>

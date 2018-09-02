@@ -18,7 +18,7 @@ bool is_file(const char* path) {
     return S_ISREG(buf.st_mode);
 }
 
-char* navigate(char* stack, char* home)   //cwd is an array which stores browsing history, files are the no of files called by main
+char* navigate(char* stack, char* home, bool goto_command)   //cwd is an array which stores browsing history, files are the no of files called by main
 //function returns true if ':' is pressed (to insert command mode)
 {
     char c;
@@ -31,7 +31,16 @@ char* navigate(char* stack, char* home)   //cwd is an array which stores browsin
 
     printf("\033[2J");     //clear screen
     printf("\033[H");      // move cursor to top
-    printf("\033[1;36m%s\033[0m\n",stack);  //print current directory at first line
+    
+    static char cd[PATH_MAX];
+    if(goto_command)
+    {
+	i++;
+	top=i;
+	getcwd(cd, sizeof(cd));
+	strcpy(cwd[i],cd);
+    }
+    printf("\033[1;36m%s\033[0m\n",cwd[i]);  //print current directory at first line
 
     int files=open_dir(cwd[i]);
 
@@ -39,7 +48,6 @@ char* navigate(char* stack, char* home)   //cwd is an array which stores browsin
     char slash[2];
     int pid;
     strcpy(slash,"/");
-    static char cd[PATH_MAX];
     int curr_file_no=1;
     bool first_down=true;
     fflush(stdout);

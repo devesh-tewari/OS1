@@ -8,7 +8,7 @@
 
 using namespace std;
 
-void execute_command(char* command, char* home , char* cwd )
+bool execute_command(char* command, char* home , char* cwd )
 {
 	char* token=new char[400];
 	token = strtok (command," ");
@@ -22,7 +22,7 @@ void execute_command(char* command, char* home , char* cwd )
 		tokens.push_back( token );
 	}
 	int size = tokens.size();
-	const char **argv = new const char*[size+2];   // extra room for program name and null
+	const char **argv = new const char*[size+2];   // extra room for program name, null
     	argv [0] = tokens[0];         // by convention, argv[0] is program name
     	for (int j = 1;j < size;++j)     // copy args
         {	
@@ -42,6 +42,8 @@ void execute_command(char* command, char* home , char* cwd )
 	strcpy( executable_path , home );
 	strcat( executable_path , slash );
 	strcat( executable_path , tokens[0] );
+
+	bool goto_flag=false;
 
 	if( strcmp(tokens[0],"copy") == 0 )
 	{
@@ -120,6 +122,85 @@ void execute_command(char* command, char* home , char* cwd )
 		}
 		pid=wait(NULL);
 	}
+
+	else if( strcmp(tokens[0],"goto") == 0 )
+	{
+		goto_flag=true;
+		chdir(argv[1]);
+	}
+
+	else if( strcmp(tokens[0],"create_file") == 0 )
+	{
+		//cout<<argv[1]<<" "<<argv[2];
+		pid=fork();
+		if(pid==0)
+		{
+			status = execl( executable_path , "create_file" , argv[1] , argv[2] , NULL );
+			if(status == -1)
+				cout<<"error! ";
+			exit(1);
+		}
+	}
+
+	else if( strcmp(tokens[0],"create_dir") == 0 )
+	{
+		//cout<<argv[1]<<" "<<argv[2];
+		pid=fork();
+		if(pid==0)
+		{
+			status = execl( executable_path , "create_dir" , argv[1] , argv[2] , NULL );
+			if(status == -1)
+				cout<<"error! ";
+			exit(1);
+		}
+	}
+	
+	else if( strcmp(tokens[0],"delete_file") == 0 )
+	{
+		char* temp=new char[400];
+		strcpy( temp,home );
+		argv[2]=temp;
+		pid=fork();
+		if(pid==0)
+		{
+			status = execl( executable_path , "delete_file" , argv[1] , argv[2] , NULL );
+			if(status == -1)
+				cout<<"error! ";
+			exit(1);
+		}
+	}
+
+	else if( strcmp(tokens[0],"restore") == 0 )
+	{
+		char* temp=new char[400];
+		strcpy( temp,home );
+		argv[2]=temp;
+		pid=fork();
+		if(pid==0)
+		{
+			status = execl( executable_path , "restore" , argv[1] , argv[2] , NULL );
+			if(status == -1)
+				cout<<"error! ";
+			exit(1);
+		}
+	}
+
+	else if( strcmp(tokens[0],"delete_dir") == 0 )
+	{
+		char* temp=new char[400];
+		strcpy( temp,home );
+		argv[2]=temp;
+		pid=fork();
+		if(pid==0)
+		{
+			status = execl( executable_path , "delete_dir" , argv[1] , argv[2] , NULL );
+			if(status == -1)
+				cout<<"error! ";
+			exit(1);
+		}
+	}
+
+	return goto_flag;
 }
 
 /*int main()

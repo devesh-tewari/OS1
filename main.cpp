@@ -35,9 +35,11 @@ int main()
 	char H[PATH_MAX];  //used to store current(home) directory
 	char* cur_dir=H;
 	getcwd(H, sizeof(H));    //get current working directory
+	bool goto_flag = false;
 
-	cur_dir = navigate( cur_dir , H );  //navigate function handles file explorer input(keystrokes) and returns true when ':' is pressed
+	cur_dir = navigate( cur_dir , H , goto_flag );  //navigate function handles file explorer input(keystrokes) and returns true when ':' is pressed
 	//cout<<cur_dir;
+	
 	fflush(stdout);
 	while(1)
 	{	
@@ -45,12 +47,12 @@ int main()
 		c=getchar();
 		switch(c)
 		{
-			case 27  :  cur_dir = navigate( cur_dir , H );
+			case 27  :  cur_dir = navigate( cur_dir , H , goto_flag );
 				    pos=0;
 				    break;
 
 			case '\n':  if(command!=NULL)
-				    	execute_command( command , H , cur_dir );
+				    	goto_flag = execute_command( command , H , cur_dir );
 				    pos=0;
 				    break;
 

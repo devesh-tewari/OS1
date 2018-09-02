@@ -1,6 +1,6 @@
 #ifndef MYCOMMANDS
 #define MYCOMMANDS
 
-void execute_command(char*, char* , char* );
+bool execute_command(char*, char* , char* );
 
 #endif
