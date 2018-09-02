@@ -28,7 +28,7 @@ int main()
         newtio.c_lflag &= ~ECHO;     //so that the keystrokes are not displayed
         tcsetattr(0, TCSANOW, &newtio);   //this sets the changed attributes
 	bool enter_command_mode;
-	char command[400];
+	char command[1000];
 	int pos=0;
 	char c;
 	
@@ -39,25 +39,46 @@ int main()
 
 	cur_dir = navigate( cur_dir , H , goto_flag );  //navigate function handles file explorer input(keystrokes) and returns true when ':' is pressed
 	//cout<<cur_dir;
+	bool clear_command_mode=true;
 	
 	fflush(stdout);
 	while(1)
 	{	
 		command[pos]='\0';
 		c=getchar();
+		if(clear_command_mode)
+		{
+			printf("%c[2K\033[200D:", 27);
+			clear_command_mode=false;
+		}
 		switch(c)
 		{
-			case 27  :  cur_dir = navigate( cur_dir , H , goto_flag );
+			case '\n':  if(command!=NULL  && pos>0)
+				    	goto_flag  =  execute_command(  command  ,  H  ,  cur_dir  );
 				    pos=0;
+				    printf("%c[2K\033[200D:", 27);
 				    break;
 
-			case '\n':  if(command!=NULL)
-				    	goto_flag = execute_command( command , H , cur_dir );
-				    pos=0;
+			case 127 :  printf("\033[D");
+				    printf(" ");
+				    printf("\033[D");
+				    if(pos>0)
+					pos--;
+				    else
+					printf(":");
 				    break;
 
-			case 'A' :  break;
+			/*case 'A' :  break;
 			case 'B' :  break;
+			case 'C' :  break;
+			case 'D' :  break;*/
+
+			case '\033':if( c=='A' || c=='B' || c=='C' || c=='D' )
+				    	break;
+				    cur_dir = navigate( cur_dir , H , goto_flag );
+				    clear_command_mode=true;
+				    pos=0;
+				    break;
 
 			default  :  command[pos]=c;
 				    pos++;
@@ -68,5 +89,6 @@ int main()
 	tcsetattr(0, TCSANOW, &oldtio);         //go back to canonical mode
 	printf("\033[2J");     //clear screen
 	printf("\033[H"); // move cursor to top
+	
 	return 0;
 }

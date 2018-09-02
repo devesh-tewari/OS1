@@ -33,11 +33,11 @@ char* navigate(char* stack, char* home, bool goto_command)   //cwd is an array w
     printf("\033[H");      // move cursor to top
     
     static char cd[PATH_MAX];
+    getcwd(cd, sizeof(cd));
     if(goto_command)
     {
 	i++;
 	top=i;
-	getcwd(cd, sizeof(cd));
 	strcpy(cwd[i],cd);
     }
     printf("\033[1;36m%s\033[0m\n",cwd[i]);  //print current directory at first line
@@ -56,7 +56,9 @@ char* navigate(char* stack, char* home, bool goto_command)   //cwd is an array w
         read(0, &c, 1);
 	switch(c)
 	{
-/*enter*/	case '\n': //next few lines appends the directory name to the current directory path
+/*enter*/	case '\n': if( strcmp(cwd[0],cd) == 0 && strcmp(curr_file->file_name.c_str(),"..") == 0 ) 
+				break;  //break if we are in home dir and pressed ".." (as we dont want to go outside this folder)
+				//next few lines appends the directory name to the current directory path
 			   strcpy(path,cwd[i]);
 			   strcat(path,slash);
 			   strcat(path,curr_file->file_name.c_str());
@@ -64,13 +66,9 @@ char* navigate(char* stack, char* home, bool goto_command)   //cwd is an array w
 			   {
 				pid = fork();
 				if (pid == 0) 
-				/*{
+				{
 				  execl("/usr/bin/xdg-open", "xdg-open", path, (char *)0);
 				  exit(1);
-				}*/
-				{
-					execlp("/usr/bin/gedit","gedit",curr_file->file_name,NULL);
-					exit(1);
 				}
 				break;
 			   }
@@ -181,6 +179,10 @@ char* navigate(char* stack, char* home, bool goto_command)   //cwd is an array w
 	{ 
 		printf("%c[2K", 27);  //clear last line
 		cout<<"\033[200D";
+		cout<<"\033[1;37m";
+		cout<<"\033[21;34;24m\t\t\t\tCommand Mode";
+		cout<<"\033[1;37m";
+		cout<<"\033[200D:";
 		break; 
 	}
     }

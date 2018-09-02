@@ -127,18 +127,25 @@ int move(char* src, char* dst, bool first_call)
 	 chmod ( dst , original_permissions );   //update the permissions like that of original file
     }
     //dst[len]='\0';
+    if( is_dir(src) )
+    {
+	rmdir(src);
+    }
+
     return 1;
 }
 
 int main(int argc, char* argv[]) 
 {
-    if(argc<3)
+//cout<<"here";
+    chdir(argv[argc-1]);
+    if(argc<4)
     {
 	cout<<"Insuffecient arguments\n";
 	return 0;
     }
     int i=1;
-    while(i<argc-1)
+    while(i<argc-2)
     {
 	if(!is_file(argv[i]) && !is_dir(argv[i]))
 	{
@@ -147,9 +154,9 @@ int main(int argc, char* argv[])
 	}
 	i++;
     }
-    if(is_file(argv[argc-1]))
+    if(is_file(argv[argc-2]))
     {
-	if(argc==3)
+	if(argc==4)
 		cout<<argv[argc-1]<<" already exists. Over-write? (y/n): ";
 	char c;
         cin>>c;
@@ -159,12 +166,12 @@ int main(int argc, char* argv[])
     
     char dest[PATH_MAX];
 
-    for(i=1;i<argc-1;i++)
+    for(i=1;i<argc-2;i++)
     {
-	strcpy(dest,argv[argc-1]);
-	cout<<argv[i]<<" "<<argv[argc-1]<<endl;
+	strcpy(dest,argv[argc-2]);
+	//cout<<argv[i]<<" "<<argv[argc-1]<<endl;
 	move( argv[i] , dest , true );
-	strcpy(dest,argv[argc-1]);
+	strcpy(dest,argv[argc-2]);
     }
     
     return 0;

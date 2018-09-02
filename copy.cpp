@@ -135,13 +135,14 @@ int copy(char* src, char* dst, bool first_call)
 
 int main(int argc, char* argv[]) 
 {
-    if(argc<3)
+    chdir(argv[argc-1]);
+    if(argc<4)
     {
 	cout<<"Insuffecient arguments\n";
 	return 0;
     }
     int i=1;
-    while(i<argc-1)
+    while(i<argc-2)
     {
 	if(!is_file(argv[i]) && !is_dir(argv[i]))
 	{
@@ -150,9 +151,9 @@ int main(int argc, char* argv[])
 	}
 	i++;
     }
-    if(is_file(argv[argc-1]))
+    if(is_file(argv[argc-2]))
     {
-	if(argc==3)
+	if(argc==4)
 		cout<<argv[argc-1]<<" already exists. Over-write? (y/n): ";
 	char c;
         cin>>c;
@@ -162,12 +163,12 @@ int main(int argc, char* argv[])
 
     char dest[PATH_MAX];
     
-    for(i=1;i<argc-1;i++)
+    for(i=1;i<argc-2;i++)
     {
-	strcpy(dest,argv[argc-1]);
+	strcpy(dest,argv[argc-2]);
 	//cout<<argv[i]<<" "<<dest<<endl;
 	copy( argv[i] , dest, true );
-	strcpy(dest,argv[argc-1]);
+	strcpy(dest,argv[argc-2]);
 	//cout<<argv[i]<<" "<<argv[argc-1]<<endl;
     }
     

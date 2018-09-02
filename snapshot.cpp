@@ -74,7 +74,8 @@ int snapshot(char* folder, char* dmp)
 
 int main(int argc, char* argv[]) 
 {
-    if(argc!=3)
+    chdir(argv[argc-1]);
+    if(argc!=4)
     {
 	cout<<"Insuffecient arguments";
 	return 0;
@@ -84,7 +85,7 @@ int main(int argc, char* argv[])
 	cout<<"Folder not found";
 	return 0;
     }*/
-    ofstream dumpfile;
+    ofstream dumpfile( argv[2] );
     dumpfile.open ( argv[2] , ios::out | ios::trunc );  //clear the dumpfile
     dumpfile.close();
 

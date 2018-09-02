@@ -18,7 +18,7 @@ int main( int argc, char* argv[] )
 	strcpy( dst , argv[2] );
 	strcat( dst , "/" );
 	strcat( dst , argv[1] );
-	cout<<dst;
+	//cout<<dst;
 
 	ofstream file( dst );
 
