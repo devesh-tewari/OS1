@@ -1,1 +1,2 @@
 ---This_Stores_Path_of_Files_from_where_they_were_deleted *DO_NOT_EDIT*--FORMAT:<file_name><space><path>..CURSOR_HERE->
+dump.txt /home/devesh/Desktop/dump.txt

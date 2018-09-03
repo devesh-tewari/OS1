@@ -142,7 +142,7 @@ bool execute_command(char* command, char* home , char* cwd )
 		pid=fork();
 		if(pid==0)
 		{
-			status = execl( executable_path , "snapshot" , argv[1] , argv[2] , NULL );
+			status = execl( executable_path , "snapshot" , argv[1] , argv[2] , argv[3] , NULL );
 			if(status == -1)
 				cout<<" error!";
 			exit(1);
@@ -168,7 +168,7 @@ bool execute_command(char* command, char* home , char* cwd )
 
 	else if( strcmp(tokens[0],"goto") == 0 )
 	{
-		if( tokens[1]=="/" )
+		if( strcmp (tokens[1] , "/") == 0 )
 			strcpy( (char*)argv[1] ,home);
 		goto_flag=true;
 		chdir(argv[1]);
