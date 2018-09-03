@@ -19,16 +19,16 @@ char* get_file_name_from_path(char* path)  //this function returns the last fold
     return &name[0];
 }
 
-int main( int argc, char* argv[] )  //1st argument=filename 2nd: home path
+int main( int argc, char* argv[] )  //1st argument=filename, 2nd: filepath , 3rd: home path
 {
-	if( argc != 3 )
+	if( argc != 4 )
 	{
 		cout<<" Error! ";
 		return 0;
 	}
 
 	char bin_path[400];
-	strcpy( bin_path , argv[2] );
+	strcpy( bin_path , argv[3] );
 	strcat(bin_path,"/RecycleBin");
 
 	char restore_file[400];
@@ -41,14 +41,14 @@ int main( int argc, char* argv[] )  //1st argument=filename 2nd: home path
 	strcat(bin_path, get_file_name_from_path(argv[1]) );
 		//cout<<argv[1]<<" "<<bin_path;
 
-	if (   rename( argv[1] , bin_path )   == 0 )  //move the file to RecycleBin
+	if (   rename( argv[2] , bin_path )   == 0 )  //move the file to RecycleBin
 	{
 		fstream file;
 		file.open( restore_file , ios::out | ios::app );
 		//cout<<get_file_name_from_path(argv[1]);
 		file << (string)get_file_name_from_path(argv[1]);   //append the name and path of deleted file to the recyclePath file
 		file << " ";
-		file << argv[1];
+		file << argv[2];
 		file << endl;
 		file.close();
 	}

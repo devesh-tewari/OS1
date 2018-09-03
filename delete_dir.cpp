@@ -136,9 +136,9 @@ int delete_dir(char* src, char* dst, bool first_call)
     return 1;
 }
 
-int main(int argc, char* argv[])    //argument 1=folder to be deleted, 2=home path
+int main(int argc, char* argv[])    //argument 1=folder to be deleted, 2=dir path,  3=home path
 {
-    if(argc<3)
+    if(argc!=4)
     {
 	cout<<"Insuffecient arguments\n";
 	return 0;
@@ -152,20 +152,20 @@ int main(int argc, char* argv[])    //argument 1=folder to be deleted, 2=home pa
     
     char dest[PATH_MAX];
 
-    strcpy(dest,argv[2]);
+    strcpy(dest,argv[3]);
     strcat(dest,"/RecycleBin");
     
-    delete_dir( argv[1] , dest , true );
+    delete_dir( argv[2] , dest , true );
 
     char restore_file[PATH_MAX];
-    strcpy(restore_file,argv[2]);
+    strcpy(restore_file,argv[3]);
     strcat(restore_file,"/RecycleBin/recyclePath.txt");
     fstream file;
     file.open( restore_file , ios::out | ios::app );
     //cout<<get_file_name_from_path(argv[1]);
     file << (string)get_dir_name_from_path(argv[1]);   //append the name and path of deleted file to the recyclePath file
     file << " ";
-    file << argv[1];
+    file << argv[2];
     file << endl;
     file.close();
     

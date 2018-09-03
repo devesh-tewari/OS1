@@ -1,3 +1,1 @@
----This_Stores_Path_of_Files_from_where_they_were_deleted---- ---FORMAT:<file_name><space><path>
-a a
-defaults.txt defaults.txt
+---This_Stores_Path_of_Files_from_where_they_were_deleted *DO_NOT_EDIT*--FORMAT:<file_name><space><path>..CURSOR_HERE->

@@ -210,11 +210,11 @@ bool execute_command(char* command, char* home , char* cwd )
 		}
 		char* temp=new char[400];
 		strcpy( temp,home );
-		argv[2]=temp;
+		argv[3]=temp;
 		pid=fork();
 		if(pid==0)
 		{
-			status = execl( executable_path , "delete_file" , argv[1] , argv[2] , NULL );
+			status = execl( executable_path , "delete_file" , argv[1] , argv[2] , argv[3] , NULL );
 			if(status == -1)
 				cout<<" error! ";
 			exit(1);
@@ -246,11 +246,11 @@ bool execute_command(char* command, char* home , char* cwd )
 		}
 		char* temp=new char[400];
 		strcpy( temp,home );
-		argv[2]=temp;
+		argv[3]=temp;
 		pid=fork();
 		if(pid==0)
 		{
-			status = execl( executable_path , "delete_dir" , argv[1] , argv[2] , NULL );
+			status = execl( executable_path , "delete_dir" , argv[1] , argv[2] , argv[3] , NULL );
 			if(status == -1)
 				cout<<" error! ";
 			exit(1);
